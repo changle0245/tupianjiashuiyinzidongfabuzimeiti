@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Sparkles, Wand2, X } from 'lucide-react';
+import { ArrowLeft, Sparkles, Wand2, X, Send } from 'lucide-react';
 import { ImageUploader } from '@/components/ImageUploader';
 import { ImageGallery } from '@/components/ImageGallery';
 import { WatermarkEditor } from '@/components/WatermarkEditor';
@@ -10,16 +10,45 @@ import { BatchWatermark } from '@/components/BatchWatermark';
 import { AITitleGenerator } from '@/components/AITitleGenerator';
 import { AIDescriptionGenerator } from '@/components/AIDescriptionGenerator';
 import { AIImageEnhancer } from '@/components/AIImageEnhancer';
-import { useImageStore } from '@/lib/store';
-import { UploadedImage } from '@/types/image';
+import { PublishQueue } from '@/components/PublishQueue';
+import { PublishTaskForm } from '@/components/PublishTaskForm';
+import { useImageStore, usePublishStore } from '@/lib/store';
+import { UploadedImage, PublishTask } from '@/types/image';
 
 export default function EditorPage() {
   const images = useImageStore((state) => state.images);
   const selectedImageIds = useImageStore((state) => state.selectedImageIds);
   const watermarkTemplate = useImageStore((state) => state.watermarkTemplate);
+  const addTask = usePublishStore((state) => state.addTask);
+  const updateTask = usePublishStore((state) => state.updateTask);
+
   const [editingImage, setEditingImage] = useState<UploadedImage | null>(null);
   const [showBatchWatermark, setShowBatchWatermark] = useState(false);
   const [showAIFeatures, setShowAIFeatures] = useState(false);
+  const [showPublishQueue, setShowPublishQueue] = useState(false);
+  const [showPublishForm, setShowPublishForm] = useState(false);
+  const [editingTask, setEditingTask] = useState<PublishTask | null>(null);
+
+  const handleCreatePublishTask = () => {
+    setEditingTask(null);
+    setShowPublishForm(true);
+  };
+
+  const handleEditTask = (task: PublishTask) => {
+    setEditingTask(task);
+    setShowPublishForm(true);
+  };
+
+  const handleSubmitTask = (task: PublishTask) => {
+    if (editingTask) {
+      updateTask(task.id, task);
+    } else {
+      addTask(task);
+    }
+    setShowPublishForm(false);
+    setEditingTask(null);
+    setShowPublishQueue(true);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -58,6 +87,21 @@ export default function EditorPage() {
               >
                 <Sparkles className="w-4 h-4" />
                 AI功能
+              </button>
+              <button
+                onClick={() => setShowPublishQueue(!showPublishQueue)}
+                className={`px-4 py-2 ${showPublishQueue ? 'bg-gradient-to-r from-green-600 to-teal-600' : 'bg-gradient-to-r from-green-500 to-teal-500'} text-white rounded-lg font-medium hover:shadow-lg transition flex items-center gap-2`}
+              >
+                <Send className="w-4 h-4" />
+                发布队列
+              </button>
+              <button
+                onClick={handleCreatePublishTask}
+                disabled={images.length === 0}
+                className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-medium hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <Send className="w-4 h-4" />
+                创建发布任务
               </button>
               <button
                 onClick={() => setShowBatchWatermark(true)}
@@ -179,6 +223,22 @@ export default function EditorPage() {
             </div>
           )}
 
+          {/* 发布队列区域 */}
+          {showPublishQueue && (
+            <div className="space-y-6">
+              <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-xl p-6 border border-green-100">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  📤 发布管理
+                </h2>
+                <p className="text-gray-600">
+                  管理你的发布任务，查看发布状态和历史记录
+                </p>
+              </div>
+
+              <PublishQueue onEditTask={handleEditTask} />
+            </div>
+          )}
+
           {/* 快捷操作提示 */}
           {images.length === 0 && (
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-8 border border-blue-100">
@@ -238,6 +298,10 @@ export default function EditorPage() {
                   <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
                   批量处理所有图片
                 </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                  发布队列管理和调度
+                </li>
               </ul>
             </div>
 
@@ -263,6 +327,18 @@ export default function EditorPage() {
       {/* 批量水印模态框 */}
       {showBatchWatermark && (
         <BatchWatermark onClose={() => setShowBatchWatermark(false)} />
+      )}
+
+      {/* 发布任务表单模态框 */}
+      {showPublishForm && (
+        <PublishTaskForm
+          task={editingTask || undefined}
+          onSubmit={handleSubmitTask}
+          onCancel={() => {
+            setShowPublishForm(false);
+            setEditingTask(null);
+          }}
+        />
       )}
     </div>
   );

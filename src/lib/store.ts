@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { UploadedImage, WatermarkConfig, WatermarkTemplate } from '@/types/image';
+import { UploadedImage, WatermarkConfig, WatermarkTemplate, PublishTask } from '@/types/image';
 
 interface ImageStore {
   images: UploadedImage[];
@@ -91,4 +91,56 @@ export const useImageStore = create<ImageStore>((set) => ({
   }),
 
   clearProcessedImages: () => set({ processedImages: new Map() }),
+}));
+
+// 发布任务Store
+interface PublishStore {
+  tasks: PublishTask[];
+
+  // 任务管理
+  addTask: (task: PublishTask) => void;
+  updateTask: (id: string, updates: Partial<PublishTask>) => void;
+  removeTask: (id: string) => void;
+  clearTasks: () => void;
+
+  // 任务查询
+  getTaskById: (id: string) => PublishTask | undefined;
+  getTasksByStatus: (status: PublishTask['status']) => PublishTask[];
+  getScheduledTasks: () => PublishTask[];
+}
+
+export const usePublishStore = create<PublishStore>((set, get) => ({
+  tasks: [],
+
+  // 任务管理
+  addTask: (task) => set((state) => ({
+    tasks: [...state.tasks, task]
+  })),
+
+  updateTask: (id, updates) => set((state) => ({
+    tasks: state.tasks.map((task) =>
+      task.id === id ? { ...task, ...updates, updatedAt: new Date() } : task
+    )
+  })),
+
+  removeTask: (id) => set((state) => ({
+    tasks: state.tasks.filter((task) => task.id !== id)
+  })),
+
+  clearTasks: () => set({ tasks: [] }),
+
+  // 任务查询
+  getTaskById: (id) => {
+    return get().tasks.find((task) => task.id === id);
+  },
+
+  getTasksByStatus: (status) => {
+    return get().tasks.filter((task) => task.status === status);
+  },
+
+  getScheduledTasks: () => {
+    return get().tasks.filter(
+      (task) => task.status === 'scheduled' && !task.isImmediate
+    );
+  },
 }));
