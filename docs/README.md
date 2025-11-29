@@ -45,7 +45,7 @@
 
 ### 前端
 - **React 18** - 现代化UI框架
-- **Next.js 15** - 全栈React框架
+- **Next.js 14** - 全栈React框架
 - **TypeScript** - 类型安全
 - **Tailwind CSS** - 快速样式开发
 - **Fabric.js** - Canvas图片编辑
@@ -66,6 +66,54 @@
 - **Prisma** - ORM
 - **AWS S3 / 阿里云OSS** - 图片存储
 - **Redis** - 缓存和队列
+
+## 📋 开发路线图
+
+### ✅ MVP阶段（无数据库）
+
+#### 第一阶段：核心图片处理（2-3周）
+- [ ] 图片上传和预览
+- [ ] 水印编辑器（拖拽、调整）
+- [ ] 图片裁剪
+- [ ] 批量处理
+
+#### 第二阶段：AI功能（2-3周）
+- [ ] AI生成标题/描述
+- [ ] AI图片增强
+
+#### 第三阶段：定时发布（2周）
+- [ ] 发布队列系统
+- [ ] 定时任务调度
+- [ ] 状态管理
+
+#### 第四阶段：平台集成（3-4周）
+- [ ] YouTube API
+- [ ] Twitter API
+- [ ] Facebook/Instagram API
+- [ ] TikTok API
+- [ ] 微信视频号API
+- [ ] 小红书（第三方服务）
+
+### 🚀 商业化阶段
+
+#### 第五阶段：用户系统
+- [ ] 用户注册/登录
+- [ ] 数据库集成
+- [ ] 云存储迁移
+
+#### 第六阶段：订阅付费
+- [ ] Stripe集成
+- [ ] 订阅计划管理
+- [ ] 使用量统计
+
+## 💰 商业模式
+
+| 计划 | 价格 | 发布次数 | 功能 |
+|------|------|----------|------|
+| 免费版 | $0 | 10次/月 | 基础功能 |
+| 基础版 | $9.99/月 | 100次/月 | + AI增强 |
+| 专业版 | $29.99/月 | 500次/月 | + 高级AI |
+| 企业版 | $99.99/月 | 无限 | + API接入 |
 
 ## 🚦 快速开始
 
@@ -94,47 +142,55 @@ npm run dev
 # 访问 http://localhost:3000
 ```
 
+### 环境变量配置
+
+创建 `.env.local` 文件：
+
+```bash
+# AI服务
+OPENAI_API_KEY=your_openai_api_key
+REPLICATE_API_TOKEN=your_replicate_token
+
+# YouTube
+YOUTUBE_CLIENT_ID=your_youtube_client_id
+YOUTUBE_CLIENT_SECRET=your_youtube_client_secret
+
+# Facebook/Instagram
+FACEBOOK_APP_ID=your_facebook_app_id
+FACEBOOK_APP_SECRET=your_facebook_app_secret
+
+# Twitter
+TWITTER_API_KEY=your_twitter_api_key
+TWITTER_API_SECRET=your_twitter_api_secret
+
+# TikTok
+TIKTOK_CLIENT_KEY=your_tiktok_client_key
+TIKTOK_CLIENT_SECRET=your_tiktok_client_secret
+
+# 微信
+WECHAT_APP_ID=your_wechat_app_id
+WECHAT_APP_SECRET=your_wechat_app_secret
+```
+
 ## 📁 项目结构
 
 ```
 src/
 ├── app/                    # Next.js页面
 │   ├── page.tsx           # 首页
-│   ├── layout.tsx         # 根布局
-│   ├── globals.css        # 全局样式
-│   └── api/               # API路由（待开发）
-├── components/            # React组件（待开发）
-└── lib/                   # 工具库
-    └── utils.ts          # 工具函数
+│   ├── editor/            # 水印编辑器
+│   ├── publish/           # 发布管理
+│   └── api/               # API路由
+├── components/            # React组件
+│   ├── ImageUploader.tsx
+│   ├── WatermarkEditor.tsx
+│   └── PublishForm.tsx
+├── lib/                   # 工具库
+│   ├── image-processor.ts
+│   ├── ai-service.ts
+│   └── platforms/         # 平台适配器
+└── types/                 # TypeScript类型
 ```
-
-## 📚 文档
-
-详细文档请查看 `docs/` 目录：
-
-- [PROJECT_PLAN.md](docs/PROJECT_PLAN.md) - 项目详细规划
-- [TECH_DECISIONS.md](docs/TECH_DECISIONS.md) - 技术选型说明
-- [MVP_ROADMAP.md](docs/MVP_ROADMAP.md) - MVP开发路线图
-- [API_SETUP_GUIDE.md](docs/API_SETUP_GUIDE.md) - API配置指南
-
-## 💰 商业模式
-
-| 计划 | 价格 | 发布次数 | 功能 |
-|------|------|----------|------|
-| 免费版 | $0 | 10次/月 | 基础功能 |
-| 基础版 | $9.99/月 | 100次/月 | + AI增强 |
-| 专业版 | $29.99/月 | 500次/月 | + 高级AI |
-| 企业版 | $99.99/月 | 无限 | + API接入 |
-
-## 📋 开发状态
-
-- [x] 项目初始化
-- [x] 基础页面设计
-- [ ] 图片上传功能
-- [ ] 水印编辑器
-- [ ] AI功能集成
-- [ ] 平台API集成
-- [ ] 定时发布系统
 
 ## 🤝 贡献指南
 
