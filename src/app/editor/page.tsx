@@ -1,14 +1,18 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Sparkles, Wand2 } from 'lucide-react';
+import { ArrowLeft, Sparkles, Wand2, X } from 'lucide-react';
 import { ImageUploader } from '@/components/ImageUploader';
 import { ImageGallery } from '@/components/ImageGallery';
+import { WatermarkEditor } from '@/components/WatermarkEditor';
 import { useImageStore } from '@/lib/store';
+import { UploadedImage } from '@/types/image';
 
 export default function EditorPage() {
   const images = useImageStore((state) => state.images);
   const selectedImageIds = useImageStore((state) => state.selectedImageIds);
+  const [editingImage, setEditingImage] = useState<UploadedImage | null>(null);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -57,6 +61,39 @@ export default function EditorPage() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto space-y-8">
+          {/* 水印编辑模式 */}
+          {editingImage ? (
+            <>
+              {/* 返回按钮 */}
+              <button
+                onClick={() => setEditingImage(null)}
+                className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg hover:bg-gray-100 transition border border-gray-200"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                返回图片列表
+              </button>
+
+              {/* 编辑器 */}
+              <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-200">
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                    添加水印
+                  </h2>
+                  <p className="text-gray-600">
+                    正在编辑: {editingImage.name}
+                  </p>
+                </div>
+                <WatermarkEditor
+                  image={editingImage}
+                  onSave={(dataUrl) => {
+                    console.log('保存水印图片:', dataUrl);
+                    // TODO: 保存处理后的图片
+                  }}
+                />
+              </div>
+            </>
+          ) : (
+            <>
           {/* 进度指示器 */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between mb-4">
@@ -101,7 +138,7 @@ export default function EditorPage() {
                   选择图片进行编辑，或批量处理多张图片
                 </p>
               </div>
-              <ImageGallery />
+              <ImageGallery onEditImage={(image) => setEditingImage(image)} />
             </div>
           )}
 
@@ -181,6 +218,8 @@ export default function EditorPage() {
               </div>
             </div>
           </div>
+          </>
+          )}
         </div>
       </main>
     </div>

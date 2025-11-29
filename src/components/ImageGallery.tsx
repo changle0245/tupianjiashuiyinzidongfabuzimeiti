@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { X, Check, Image as ImageIcon } from 'lucide-react';
+import { X, Check, Image as ImageIcon, Edit } from 'lucide-react';
 import { useImageStore } from '@/lib/store';
 import { UploadedImage } from '@/types/image';
 
@@ -18,9 +18,10 @@ interface ImageCardProps {
   isSelected: boolean;
   onSelect: () => void;
   onRemove: () => void;
+  onEdit: () => void;
 }
 
-function ImageCard({ image, isSelected, onSelect, onRemove }: ImageCardProps) {
+function ImageCard({ image, isSelected, onSelect, onRemove, onEdit }: ImageCardProps) {
   return (
     <div
       className={`
@@ -45,6 +46,22 @@ function ImageCard({ image, isSelected, onSelect, onRemove }: ImageCardProps) {
         {isSelected && <Check className="w-4 h-4 text-white" />}
       </div>
 
+      {/* 编辑按钮 */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onEdit();
+        }}
+        className={`
+          absolute top-2 right-12 z-10 p-1.5 bg-blue-500 text-white rounded-full
+          transition-all opacity-0 group-hover:opacity-100
+          hover:bg-blue-600 hover:scale-110
+        `}
+        title="编辑水印"
+      >
+        <Edit className="w-4 h-4" />
+      </button>
+
       {/* 删除按钮 */}
       <button
         onClick={(e) => {
@@ -56,6 +73,7 @@ function ImageCard({ image, isSelected, onSelect, onRemove }: ImageCardProps) {
           transition-all opacity-0 group-hover:opacity-100
           hover:bg-red-600 hover:scale-110
         `}
+        title="删除图片"
       >
         <X className="w-4 h-4" />
       </button>
@@ -90,7 +108,11 @@ function ImageCard({ image, isSelected, onSelect, onRemove }: ImageCardProps) {
   );
 }
 
-export function ImageGallery() {
+interface ImageGalleryProps {
+  onEditImage?: (image: UploadedImage) => void;
+}
+
+export function ImageGallery({ onEditImage }: ImageGalleryProps = {}) {
   const images = useImageStore((state) => state.images);
   const selectedImageIds = useImageStore((state) => state.selectedImageIds);
   const removeImage = useImageStore((state) => state.removeImage);
@@ -185,6 +207,7 @@ export function ImageGallery() {
             isSelected={selectedImageIds.includes(image.id)}
             onSelect={() => toggleSelect(image.id)}
             onRemove={() => removeImage(image.id)}
+            onEdit={() => onEditImage?.(image)}
           />
         ))}
       </div>
