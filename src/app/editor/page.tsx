@@ -7,6 +7,9 @@ import { ImageUploader } from '@/components/ImageUploader';
 import { ImageGallery } from '@/components/ImageGallery';
 import { WatermarkEditor } from '@/components/WatermarkEditor';
 import { BatchWatermark } from '@/components/BatchWatermark';
+import { AITitleGenerator } from '@/components/AITitleGenerator';
+import { AIDescriptionGenerator } from '@/components/AIDescriptionGenerator';
+import { AIImageEnhancer } from '@/components/AIImageEnhancer';
 import { useImageStore } from '@/lib/store';
 import { UploadedImage } from '@/types/image';
 
@@ -16,6 +19,7 @@ export default function EditorPage() {
   const watermarkTemplate = useImageStore((state) => state.watermarkTemplate);
   const [editingImage, setEditingImage] = useState<UploadedImage | null>(null);
   const [showBatchWatermark, setShowBatchWatermark] = useState(false);
+  const [showAIFeatures, setShowAIFeatures] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -48,11 +52,12 @@ export default function EditorPage() {
                 </div>
               )}
               <button
+                onClick={() => setShowAIFeatures(!showAIFeatures)}
                 disabled={images.length === 0}
-                className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className={`px-4 py-2 ${showAIFeatures ? 'bg-gradient-to-r from-purple-600 to-pink-600' : 'bg-gradient-to-r from-purple-500 to-pink-500'} text-white rounded-lg font-medium hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2`}
               >
                 <Sparkles className="w-4 h-4" />
-                AI增强
+                AI功能
               </button>
               <button
                 onClick={() => setShowBatchWatermark(true)}
@@ -151,6 +156,29 @@ export default function EditorPage() {
             </div>
           )}
 
+          {/* AI功能区域 */}
+          {showAIFeatures && images.length > 0 && (
+            <div className="space-y-6">
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  🤖 AI智能助手
+                </h2>
+                <p className="text-gray-600">
+                  使用AI为你的内容生成标题、描述，或增强图片质量
+                </p>
+              </div>
+
+              {/* AI标题生成 */}
+              <AITitleGenerator />
+
+              {/* AI描述生成 */}
+              <AIDescriptionGenerator />
+
+              {/* AI图片增强 */}
+              <AIImageEnhancer />
+            </div>
+          )}
+
           {/* 快捷操作提示 */}
           {images.length === 0 && (
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-8 border border-blue-100">
@@ -192,22 +220,22 @@ export default function EditorPage() {
           {/* 功能特性 */}
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-              <h3 className="font-semibold text-gray-900 mb-3">即将推出</h3>
+              <h3 className="font-semibold text-gray-900 mb-3">已完成功能 ✓</h3>
               <ul className="space-y-2 text-sm text-gray-600">
                 <li className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
                   Canvas水印编辑器（可拖拽、调整大小）
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
                   AI智能生成标题和描述
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
                   图片质量增强（模糊变高清）
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
                   批量处理所有图片
                 </li>
               </ul>
