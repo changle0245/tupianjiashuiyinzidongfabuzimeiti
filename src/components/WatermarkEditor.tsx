@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { fabric } from 'fabric';
-import { Type, Image as ImageIcon, Download, Trash2, Undo, Redo } from 'lucide-react';
-import { UploadedImage } from '@/types/image';
+import { Type, Image as ImageIcon, Download, Trash2, Undo, Redo, Save } from 'lucide-react';
+import { UploadedImage, WatermarkTemplate } from '@/types/image';
+import { useImageStore } from '@/lib/store';
 
 interface WatermarkEditorProps {
   image: UploadedImage;
@@ -16,6 +17,7 @@ export function WatermarkEditor({ image, onSave }: WatermarkEditorProps) {
   const [activeObject, setActiveObject] = useState<fabric.Object | null>(null);
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+  const setWatermarkTemplate = useImageStore((state) => state.setWatermarkTemplate);
 
   // 初始化 Canvas
   useEffect(() => {
@@ -242,6 +244,40 @@ export function WatermarkEditor({ image, onSave }: WatermarkEditorProps) {
     link.click();
   }, [canvas, image.name, onSave]);
 
+  // 保存水印模板
+  const saveTemplate = useCallback(() => {
+    if (!canvas) return;
+
+    // 取消选择
+    canvas.discardActiveObject();
+    canvas.renderAll();
+
+    // 获取Canvas JSON（包含所有水印对象）
+    const canvasJSON = JSON.stringify(canvas.toJSON());
+
+    // 生成缩略图
+    const thumbnail = canvas.toDataURL({
+      format: 'png',
+      quality: 0.5,
+      multiplier: 0.3, // 缩小到30%作为缩略图
+    });
+
+    // 创建模板
+    const template: WatermarkTemplate = {
+      id: `template-${Date.now()}`,
+      name: `水印模板 ${new Date().toLocaleString()}`,
+      canvasJSON,
+      thumbnail,
+      createdAt: new Date(),
+    };
+
+    // 保存到状态
+    setWatermarkTemplate(template);
+
+    // 提示用户
+    alert('水印模板已保存！现在可以批量应用到其他图片了。');
+  }, [canvas, setWatermarkTemplate]);
+
   return (
     <div className="flex flex-col lg:flex-row gap-6">
       {/* Canvas 区域 */}
@@ -299,6 +335,14 @@ export function WatermarkEditor({ image, onSave }: WatermarkEditorProps) {
               </button>
             )}
             <div className="flex-1"></div>
+            <button
+              onClick={saveTemplate}
+              className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-lg hover:shadow-lg transition font-medium"
+              title="保存为模板，可批量应用到其他图片"
+            >
+              <Save className="w-4 h-4" />
+              保存模板
+            </button>
             <button
               onClick={exportImage}
               className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transition font-medium"

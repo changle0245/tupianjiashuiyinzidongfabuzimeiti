@@ -8,6 +8,7 @@ export interface UploadedImage {
   size: number;
   type: string;
   uploadedAt: Date;
+  watermarkedPreview?: string; // 添加水印后的预览图
 }
 
 export interface WatermarkConfig {
@@ -25,6 +26,15 @@ export interface WatermarkConfig {
   opacity: number;
   rotation?: number;
   scale?: number;
+}
+
+// 水印模板（保存完整的Canvas状态）
+export interface WatermarkTemplate {
+  id: string;
+  name: string;
+  canvasJSON: string; // Fabric.js Canvas的JSON序列化
+  thumbnail?: string; // 预览缩略图
+  createdAt: Date;
 }
 
 export interface ImageWithWatermark {

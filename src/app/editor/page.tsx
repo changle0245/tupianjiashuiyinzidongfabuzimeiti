@@ -6,13 +6,16 @@ import { ArrowLeft, Sparkles, Wand2, X } from 'lucide-react';
 import { ImageUploader } from '@/components/ImageUploader';
 import { ImageGallery } from '@/components/ImageGallery';
 import { WatermarkEditor } from '@/components/WatermarkEditor';
+import { BatchWatermark } from '@/components/BatchWatermark';
 import { useImageStore } from '@/lib/store';
 import { UploadedImage } from '@/types/image';
 
 export default function EditorPage() {
   const images = useImageStore((state) => state.images);
   const selectedImageIds = useImageStore((state) => state.selectedImageIds);
+  const watermarkTemplate = useImageStore((state) => state.watermarkTemplate);
   const [editingImage, setEditingImage] = useState<UploadedImage | null>(null);
+  const [showBatchWatermark, setShowBatchWatermark] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -39,6 +42,11 @@ export default function EditorPage() {
 
             {/* 操作按钮 */}
             <div className="flex items-center gap-3">
+              {watermarkTemplate && (
+                <div className="px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
+                  ✓ 已保存模板
+                </div>
+              )}
               <button
                 disabled={images.length === 0}
                 className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
@@ -47,11 +55,12 @@ export default function EditorPage() {
                 AI增强
               </button>
               <button
+                onClick={() => setShowBatchWatermark(true)}
                 disabled={selectedImageIds.length === 0}
                 className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 <Wand2 className="w-4 h-4" />
-                添加水印
+                批量水印
               </button>
             </div>
           </div>
@@ -222,6 +231,11 @@ export default function EditorPage() {
           )}
         </div>
       </main>
+
+      {/* 批量水印模态框 */}
+      {showBatchWatermark && (
+        <BatchWatermark onClose={() => setShowBatchWatermark(false)} />
+      )}
     </div>
   );
 }
