@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Sparkles, Wand2, X, Send } from 'lucide-react';
+import { ArrowLeft, Sparkles, Wand2, X, Send, Download, Palette, Edit3, Bookmark, Maximize } from 'lucide-react';
 import { ImageUploader } from '@/components/ImageUploader';
 import { ImageGallery } from '@/components/ImageGallery';
 import { WatermarkEditor } from '@/components/WatermarkEditor';
@@ -12,6 +12,11 @@ import { AIDescriptionGenerator } from '@/components/AIDescriptionGenerator';
 import { AIImageEnhancer } from '@/components/AIImageEnhancer';
 import { PublishQueue } from '@/components/PublishQueue';
 import { PublishTaskForm } from '@/components/PublishTaskForm';
+import { ImageEditor } from '@/components/ImageEditor';
+import { ImageFilters } from '@/components/ImageFilters';
+import { TemplateLibrary } from '@/components/TemplateLibrary';
+import { BatchExport } from '@/components/BatchExport';
+import { ImageCompare } from '@/components/ImageCompare';
 import { useImageStore, usePublishStore } from '@/lib/store';
 import { UploadedImage, PublishTask } from '@/types/image';
 
@@ -23,10 +28,14 @@ export default function EditorPage() {
   const updateTask = usePublishStore((state) => state.updateTask);
 
   const [editingImage, setEditingImage] = useState<UploadedImage | null>(null);
+  const [filteringImage, setFilteringImage] = useState<UploadedImage | null>(null);
+  const [comparingImage, setComparingImage] = useState<UploadedImage | null>(null);
   const [showBatchWatermark, setShowBatchWatermark] = useState(false);
   const [showAIFeatures, setShowAIFeatures] = useState(false);
   const [showPublishQueue, setShowPublishQueue] = useState(false);
   const [showPublishForm, setShowPublishForm] = useState(false);
+  const [showTemplateLibrary, setShowTemplateLibrary] = useState(false);
+  const [showBatchExport, setShowBatchExport] = useState(false);
   const [editingTask, setEditingTask] = useState<PublishTask | null>(null);
 
   const handleCreatePublishTask = () => {
@@ -74,23 +83,38 @@ export default function EditorPage() {
             </div>
 
             {/* 操作按钮 */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 flex-wrap">
               {watermarkTemplate && (
                 <div className="px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
                   ✓ 已保存模板
                 </div>
               )}
               <button
+                onClick={() => setShowTemplateLibrary(!showTemplateLibrary)}
+                className={`px-3 py-2 ${showTemplateLibrary ? 'bg-gradient-to-r from-amber-600 to-orange-600' : 'bg-gradient-to-r from-amber-500 to-orange-500'} text-white rounded-lg font-medium hover:shadow-lg transition flex items-center gap-2`}
+              >
+                <Bookmark className="w-4 h-4" />
+                模板库
+              </button>
+              <button
+                onClick={() => setShowBatchExport(true)}
+                disabled={images.length === 0}
+                className="px-3 py-2 bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-lg font-medium hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                批量导出
+              </button>
+              <button
                 onClick={() => setShowAIFeatures(!showAIFeatures)}
                 disabled={images.length === 0}
-                className={`px-4 py-2 ${showAIFeatures ? 'bg-gradient-to-r from-purple-600 to-pink-600' : 'bg-gradient-to-r from-purple-500 to-pink-500'} text-white rounded-lg font-medium hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2`}
+                className={`px-3 py-2 ${showAIFeatures ? 'bg-gradient-to-r from-purple-600 to-pink-600' : 'bg-gradient-to-r from-purple-500 to-pink-500'} text-white rounded-lg font-medium hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2`}
               >
                 <Sparkles className="w-4 h-4" />
                 AI功能
               </button>
               <button
                 onClick={() => setShowPublishQueue(!showPublishQueue)}
-                className={`px-4 py-2 ${showPublishQueue ? 'bg-gradient-to-r from-green-600 to-teal-600' : 'bg-gradient-to-r from-green-500 to-teal-500'} text-white rounded-lg font-medium hover:shadow-lg transition flex items-center gap-2`}
+                className={`px-3 py-2 ${showPublishQueue ? 'bg-gradient-to-r from-green-600 to-teal-600' : 'bg-gradient-to-r from-green-500 to-teal-500'} text-white rounded-lg font-medium hover:shadow-lg transition flex items-center gap-2`}
               >
                 <Send className="w-4 h-4" />
                 发布队列
@@ -98,15 +122,15 @@ export default function EditorPage() {
               <button
                 onClick={handleCreatePublishTask}
                 disabled={images.length === 0}
-                className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-medium hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-3 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-medium hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 <Send className="w-4 h-4" />
-                创建发布任务
+                创建任务
               </button>
               <button
                 onClick={() => setShowBatchWatermark(true)}
                 disabled={selectedImageIds.length === 0}
-                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-3 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 <Wand2 className="w-4 h-4" />
                 批量水印
@@ -239,6 +263,22 @@ export default function EditorPage() {
             </div>
           )}
 
+          {/* 模板库区域 */}
+          {showTemplateLibrary && (
+            <div className="space-y-6">
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-100">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  🔖 水印模板库
+                </h2>
+                <p className="text-gray-600">
+                  管理和使用你保存的水印模板
+                </p>
+              </div>
+
+              <TemplateLibrary />
+            </div>
+          )}
+
           {/* 快捷操作提示 */}
           {images.length === 0 && (
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-8 border border-blue-100">
@@ -302,6 +342,22 @@ export default function EditorPage() {
                   <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
                   发布队列管理和调度
                 </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                  图片基础编辑（旋转、翻转）
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                  滤镜和调色功能
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                  水印模板库管理
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                  批量导出ZIP打包
+                </li>
               </ul>
             </div>
 
@@ -339,6 +395,43 @@ export default function EditorPage() {
             setEditingTask(null);
           }}
         />
+      )}
+
+      {/* 图片编辑器模态框 */}
+      {editingImage && (
+        <ImageEditor
+          image={editingImage}
+          onSave={(editedImageUrl) => {
+            // TODO: 更新图片
+            setEditingImage(null);
+          }}
+          onClose={() => setEditingImage(null)}
+        />
+      )}
+
+      {/* 滤镜编辑器模态框 */}
+      {filteringImage && (
+        <ImageFilters
+          image={filteringImage}
+          onSave={(filteredImageUrl) => {
+            // TODO: 更新图片
+            setFilteringImage(null);
+          }}
+          onClose={() => setFilteringImage(null)}
+        />
+      )}
+
+      {/* 图片对比模态框 */}
+      {comparingImage && (
+        <ImageCompare
+          image={comparingImage}
+          onClose={() => setComparingImage(null)}
+        />
+      )}
+
+      {/* 批量导出模态框 */}
+      {showBatchExport && (
+        <BatchExport onClose={() => setShowBatchExport(false)} />
       )}
     </div>
   );

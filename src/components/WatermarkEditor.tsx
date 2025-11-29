@@ -17,7 +17,7 @@ export function WatermarkEditor({ image, onSave }: WatermarkEditorProps) {
   const [activeObject, setActiveObject] = useState<fabric.Object | null>(null);
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
-  const setWatermarkTemplate = useImageStore((state) => state.setWatermarkTemplate);
+  const addWatermarkTemplate = useImageStore((state) => state.addWatermarkTemplate);
 
   // 初始化 Canvas
   useEffect(() => {
@@ -272,11 +272,11 @@ export function WatermarkEditor({ image, onSave }: WatermarkEditorProps) {
     };
 
     // 保存到状态
-    setWatermarkTemplate(template);
+    addWatermarkTemplate(template);
 
     // 提示用户
-    alert('水印模板已保存！现在可以批量应用到其他图片了。');
-  }, [canvas, setWatermarkTemplate]);
+    alert('水印模板已保存！现在可以在模板库中查看和使用了。');
+  }, [canvas, addWatermarkTemplate]);
 
   return (
     <div className="flex flex-col lg:flex-row gap-6">

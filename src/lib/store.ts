@@ -6,6 +6,7 @@ interface ImageStore {
   selectedImageIds: string[];
   watermarkConfig: WatermarkConfig | null;
   watermarkTemplate: WatermarkTemplate | null; // 当前水印模板
+  watermarkTemplates: WatermarkTemplate[]; // 所有保存的模板
   processedImages: Map<string, string>; // imageId -> processedDataUrl
 
   // 图片管理
@@ -27,6 +28,9 @@ interface ImageStore {
   // 水印模板
   setWatermarkTemplate: (template: WatermarkTemplate) => void;
   clearWatermarkTemplate: () => void;
+  addWatermarkTemplate: (template: WatermarkTemplate) => void;
+  updateWatermarkTemplate: (id: string, updates: Partial<WatermarkTemplate>) => void;
+  removeWatermarkTemplate: (id: string) => void;
 
   // 处理后的图片
   addProcessedImage: (imageId: string, dataUrl: string) => void;
@@ -38,6 +42,7 @@ export const useImageStore = create<ImageStore>((set) => ({
   selectedImageIds: [],
   watermarkConfig: null,
   watermarkTemplate: null,
+  watermarkTemplates: [],
   processedImages: new Map(),
 
   // 图片管理
@@ -82,6 +87,22 @@ export const useImageStore = create<ImageStore>((set) => ({
   setWatermarkTemplate: (template) => set({ watermarkTemplate: template }),
 
   clearWatermarkTemplate: () => set({ watermarkTemplate: null }),
+
+  addWatermarkTemplate: (template) => set((state) => ({
+    watermarkTemplates: [...state.watermarkTemplates, template],
+    watermarkTemplate: template, // 同时设置为当前模板
+  })),
+
+  updateWatermarkTemplate: (id, updates) => set((state) => ({
+    watermarkTemplates: state.watermarkTemplates.map((t) =>
+      t.id === id ? { ...t, ...updates } : t
+    ),
+  })),
+
+  removeWatermarkTemplate: (id) => set((state) => ({
+    watermarkTemplates: state.watermarkTemplates.filter((t) => t.id !== id),
+    watermarkTemplate: state.watermarkTemplate?.id === id ? null : state.watermarkTemplate,
+  })),
 
   // 处理后的图片
   addProcessedImage: (imageId, dataUrl) => set((state) => {
