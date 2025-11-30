@@ -29,32 +29,40 @@ export function WatermarkEditor({ image, onSave }: WatermarkEditorProps) {
       backgroundColor: '#f5f5f5',
     });
 
-    // 加载背景图片
-    fabric.Image.fromURL(image.preview, (img) => {
-      if (!img) return;
+    // 加载背景图片 - 使用 async/await
+    const loadImage = async () => {
+      try {
+        const img = await fabric.Image.fromURL(image.preview);
 
-      // 计算缩放比例以适应画布
-      const scale = Math.min(
-        fabricCanvas.width! / (img.width || 1),
-        fabricCanvas.height! / (img.height || 1)
-      ) * 0.9;
+        if (!img) return;
 
-      img.set({
-        scaleX: scale,
-        scaleY: scale,
-        selectable: false,
-        evented: false,
-      });
+        // 计算缩放比例以适应画布
+        const scale = Math.min(
+          fabricCanvas.width! / (img.width || 1),
+          fabricCanvas.height! / (img.height || 1)
+        ) * 0.9;
 
-      // 居中图片
-      img.center();
-      fabricCanvas.add(img);
-      fabricCanvas.sendToBack(img);
-      fabricCanvas.renderAll();
+        img.set({
+          scaleX: scale,
+          scaleY: scale,
+          selectable: false,
+          evented: false,
+        });
 
-      // 保存初始状态
-      saveState(fabricCanvas);
-    });
+        // 居中图片
+        img.center();
+        fabricCanvas.add(img);
+        fabricCanvas.sendToBack(img);
+        fabricCanvas.renderAll();
+
+        // 保存初始状态
+        saveState(fabricCanvas);
+      } catch (error) {
+        console.error('加载图片失败:', error);
+      }
+    };
+
+    loadImage();
 
     // 监听对象选择
     fabricCanvas.on('selection:created', (e) => {
@@ -147,13 +155,14 @@ export function WatermarkEditor({ image, onSave }: WatermarkEditorProps) {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file && canvas) {
         const reader = new FileReader();
-        reader.onload = (event) => {
+        reader.onload = async (event) => {
           const imgUrl = event.target?.result as string;
-          fabric.Image.fromURL(imgUrl, (img) => {
+          try {
+            const img = await fabric.Image.fromURL(imgUrl);
             img.set({
               left: 50,
               top: 50,
@@ -165,7 +174,9 @@ export function WatermarkEditor({ image, onSave }: WatermarkEditorProps) {
             canvas.setActiveObject(img);
             canvas.renderAll();
             saveState(canvas);
-          });
+          } catch (error) {
+            console.error('加载水印图片失败:', error);
+          }
         };
         reader.readAsDataURL(file);
       }

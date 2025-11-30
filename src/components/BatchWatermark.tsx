@@ -72,70 +72,65 @@ export function BatchWatermark({ onClose }: BatchWatermarkProps) {
 
   // 处理单张图片
   const processImage = async (image: UploadedImage, templateJSON: string): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      // 创建临时Canvas
-      const tempCanvas = new fabric.Canvas(document.createElement('canvas'));
+    // 创建临时Canvas
+    const tempCanvas = new fabric.Canvas(document.createElement('canvas'));
 
-      // 加载图片
-      fabric.Image.fromURL(image.preview, (img) => {
-        if (!img) {
-          reject(new Error('无法加载图片'));
-          return;
-        }
+    try {
+      // 加载图片 - 使用 Promise 风格
+      const img = await fabric.Image.fromURL(image.preview);
 
-        // 设置Canvas大小为图片原始大小
-        tempCanvas.setWidth(img.width || 800);
-        tempCanvas.setHeight(img.height || 600);
+      if (!img) {
+        throw new Error('无法加载图片');
+      }
 
-        // 添加背景图片
-        img.set({
-          selectable: false,
-          evented: false,
-        });
+      // 设置Canvas大小为图片原始大小
+      tempCanvas.setWidth(img.width || 800);
+      tempCanvas.setHeight(img.height || 600);
 
-        tempCanvas.add(img);
-        tempCanvas.sendToBack(img);
-
-        // 加载水印模板
-        try {
-          const templateData = JSON.parse(templateJSON);
-
-          // 只加载水印对象（跳过背景图）
-          if (templateData.objects) {
-            templateData.objects.forEach((obj: any) => {
-              // 跳过背景图片对象
-              if (obj.selectable === false) return;
-
-              // 根据对象类型创建实例
-              fabric.util.enlivenObjects([obj], (objects: fabric.Object[]) => {
-                objects.forEach((o) => {
-                  tempCanvas.add(o);
-                });
-              });
-            });
-          }
-
-          // 等待所有对象加载完成
-          setTimeout(() => {
-            tempCanvas.renderAll();
-
-            // 导出为DataURL
-            const dataUrl = tempCanvas.toDataURL({
-              format: 'png',
-              quality: 1,
-            });
-
-            // 清理
-            tempCanvas.dispose();
-
-            resolve(dataUrl);
-          }, 100);
-        } catch (error) {
-          tempCanvas.dispose();
-          reject(error);
-        }
+      // 添加背景图片
+      img.set({
+        selectable: false,
+        evented: false,
       });
-    });
+
+      tempCanvas.add(img);
+      tempCanvas.sendToBack(img);
+
+      // 加载水印模板
+      const templateData = JSON.parse(templateJSON);
+
+      // 只加载水印对象（跳过背景图）
+      if (templateData.objects) {
+        for (const obj of templateData.objects) {
+          // 跳过背景图片对象
+          if (obj.selectable === false) continue;
+
+          // 根据对象类型创建实例 - 使用 Promise 风格
+          const objects = await fabric.util.enlivenObjects([obj]);
+          objects.forEach((o) => {
+            tempCanvas.add(o);
+          });
+        }
+      }
+
+      // 等待渲染完成
+      await new Promise(resolve => setTimeout(resolve, 100));
+      tempCanvas.renderAll();
+
+      // 导出为DataURL
+      const dataUrl = tempCanvas.toDataURL({
+        format: 'png',
+        quality: 1,
+      });
+
+      // 清理
+      tempCanvas.dispose();
+
+      return dataUrl;
+    } catch (error) {
+      tempCanvas.dispose();
+      throw error;
+    }
   };
 
   // 批量下载
