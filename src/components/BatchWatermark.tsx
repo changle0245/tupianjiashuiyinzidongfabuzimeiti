@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { fabric } from 'fabric';
+import * as fabric from 'fabric';
 import { Wand2, Check, X, Download, Loader2 } from 'lucide-react';
 import { useImageStore } from '@/lib/store';
 import { UploadedImage } from '@/types/image';

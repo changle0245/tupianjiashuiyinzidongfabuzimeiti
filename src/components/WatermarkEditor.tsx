@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { fabric } from 'fabric';
+import * as fabric from 'fabric';
 import { Type, Image as ImageIcon, Download, Trash2, Undo, Redo, Save } from 'lucide-react';
 import { UploadedImage, WatermarkTemplate } from '@/types/image';
 import { useImageStore } from '@/lib/store';
