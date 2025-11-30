@@ -52,7 +52,7 @@ export function WatermarkEditor({ image, onSave }: WatermarkEditorProps) {
         // 居中图片
         img.center();
         fabricCanvas.add(img);
-        fabricCanvas.sendToBack(img);
+        img.sendToBack();
         fabricCanvas.renderAll();
 
         // 保存初始状态
