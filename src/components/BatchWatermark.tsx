@@ -94,7 +94,7 @@ export function BatchWatermark({ onClose }: BatchWatermarkProps) {
       });
 
       tempCanvas.add(img);
-      img.sendToBack();
+      tempCanvas.sendObjectToBack(img);
 
       // 加载水印模板
       const templateData = JSON.parse(templateJSON);
