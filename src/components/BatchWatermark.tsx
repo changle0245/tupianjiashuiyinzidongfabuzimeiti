@@ -108,7 +108,10 @@ export function BatchWatermark({ onClose }: BatchWatermarkProps) {
           // 根据对象类型创建实例 - 使用 Promise 风格
           const objects = await fabric.util.enlivenObjects([obj]);
           objects.forEach((o) => {
-            tempCanvas.add(o);
+            // 只添加 FabricObject 类型的对象（过滤掉 Gradient、Shadow 等辅助对象）
+            if (o && typeof o === 'object' && 'canvas' in o) {
+              tempCanvas.add(o as fabric.FabricObject);
+            }
           });
         }
       }
