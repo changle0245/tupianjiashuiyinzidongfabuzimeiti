@@ -204,7 +204,6 @@ export function ImageEditor({ image, onSave, onClose }: ImageEditorProps) {
           <canvas
             ref={canvasRef}
             className="max-w-full max-h-full shadow-2xl"
-            style={{ imageRendering: 'high-quality' }}
           />
         </div>
 
