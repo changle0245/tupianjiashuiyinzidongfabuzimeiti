@@ -124,6 +124,7 @@ export function BatchWatermark({ onClose }: BatchWatermarkProps) {
       const dataUrl = tempCanvas.toDataURL({
         format: 'png',
         quality: 1,
+        multiplier: 1,
       });
 
       // 清理

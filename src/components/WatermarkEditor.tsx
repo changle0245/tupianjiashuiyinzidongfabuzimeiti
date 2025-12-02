@@ -242,6 +242,7 @@ export function WatermarkEditor({ image, onSave }: WatermarkEditorProps) {
     const dataUrl = canvas.toDataURL({
       format: 'png',
       quality: 1,
+      multiplier: 1,
     });
 
     if (onSave) {
