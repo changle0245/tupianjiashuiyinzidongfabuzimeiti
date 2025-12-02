@@ -43,6 +43,10 @@ export function WatermarkEditor({ image, onSave }: WatermarkEditorProps) {
         ) * 0.9;
 
         img.set({
+          left: fabricCanvas.width! / 2,
+          top: fabricCanvas.height! / 2,
+          originX: 'center',
+          originY: 'center',
           scaleX: scale,
           scaleY: scale,
           selectable: false,
@@ -50,7 +54,6 @@ export function WatermarkEditor({ image, onSave }: WatermarkEditorProps) {
         });
 
         // 居中图片
-        img.center();
         fabricCanvas.add(img);
         fabricCanvas.sendObjectToBack(img);
         fabricCanvas.renderAll();

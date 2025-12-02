@@ -1,13 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Replicate from 'replicate';
 
-// 初始化 Replicate 客户端
-const replicate = new Replicate({
-  auth: process.env.REPLICATE_API_TOKEN,
-});
+// 延迟初始化 Replicate 客户端
+function getReplicateClient() {
+  if (!process.env.REPLICATE_API_TOKEN) {
+    throw new Error('REPLICATE_API_TOKEN is not configured');
+  }
+  return new Replicate({
+    auth: process.env.REPLICATE_API_TOKEN,
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
+    const replicate = getReplicateClient();
     const { imageUrl, scale = 2 } = await request.json();
 
     if (!imageUrl) {
@@ -59,6 +65,7 @@ export async function POST(request: NextRequest) {
 // 获取增强任务状态（用于异步处理）
 export async function GET(request: NextRequest) {
   try {
+    const replicate = getReplicateClient();
     const { searchParams } = new URL(request.url);
     const predictionId = searchParams.get('id');
 

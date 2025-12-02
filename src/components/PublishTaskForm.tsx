@@ -98,11 +98,11 @@ export function PublishTaskForm({ task, onSubmit, onCancel }: PublishTaskFormPro
       return;
     }
 
-    let publishTime: Date;
+    let publishDateTime: Date;
     if (isImmediate) {
-      publishTime = new Date();
+      publishDateTime = new Date();
     } else {
-      publishTime = new Date(`${publishDate}T${publishTime}`);
+      publishDateTime = new Date(`${publishDate}T${publishTime}`);
     }
 
     const newTask: PublishTask = {
@@ -111,7 +111,7 @@ export function PublishTaskForm({ task, onSubmit, onCancel }: PublishTaskFormPro
       description: description.trim(),
       platforms: selectedPlatforms,
       imageIds: selectedImages,
-      publishTime,
+      publishTime: publishDateTime,
       status: isDraft ? 'draft' : isImmediate ? 'scheduled' : 'scheduled',
       isImmediate,
       createdAt: task?.createdAt || new Date(),
